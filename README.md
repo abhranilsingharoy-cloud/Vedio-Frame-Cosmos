@@ -151,10 +151,7 @@ We welcome contributions from the community! To contribute:
 
 ---
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
 
 <div align="center">
-  <i>Built with ❤️ for the Computer Vision Community.</i>
+  <i>Desigened and Developed by Abhranil Singha Roy.</i>
 </div>
