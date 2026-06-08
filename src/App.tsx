@@ -87,6 +87,11 @@ function App() {
           </div>
         )}
       </main>
+
+      {/* Credit Footer */}
+      <div className="fixed bottom-4 right-6 z-50 text-xs font-medium text-muted-foreground/50 hover:text-muted-foreground transition-colors pointer-events-none">
+        Designed and Developed by Abhranil Singha Roy.
+      </div>
     </div>
   );
 }
