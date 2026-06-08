@@ -1,73 +1,160 @@
-# React + TypeScript + Vite
+<div align="center">
+  
+# 🌌 Vedio Frame Cosmos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**The ultimate 100% browser-based, zero-server platform for intelligent video frame extraction and computer vision dataset generation.**
 
-Currently, two official plugins are available:
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![React](https://img.shields.io/badge/React-19.2-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Three.js](https://img.shields.io/badge/Three.js-3D-black?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
+[![FFmpeg](https://img.shields.io/badge/FFmpeg-WASM-green?style=for-the-badge&logo=ffmpeg&logoColor=white)](https://ffmpegwasm.netlify.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+[View Live Demo](#) · [Report Bug](#) · [Request Feature](#)
 
-## React Compiler
+</div>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 📖 Table of Contents
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [Overview](#-overview)
+- [Core Capabilities](#-core-capabilities)
+- [System Architecture](#-system-architecture)
+- [Edge AI & Machine Learning](#-edge-ai--machine-learning)
+- [Deployment & Local Development](#-deployment--local-development)
+- [Dataset Export Formats](#-dataset-export-formats)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🔭 Overview
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Vedio Frame Cosmos** is a state-of-the-art Web3-era tool designed for ML engineers, computer vision researchers, and data scientists. By leveraging the power of WebAssembly (WASM), it moves heavy video processing entirely to the client-side. Your raw video bytes **never leave your local machine**, guaranteeing absolute data privacy, zero server costs, and unlimited processing bandwidth.
+
+Wrapped in an immersive, highly performant **3D Spatial User Interface** using React Three Fiber, the application provides a cinematic workspace inspired by professional color grading suites.
+
+---
+
+## ⚡ Core Capabilities
+
+- 🔒 **Total Privacy (Zero-Server Architecture)**: Processes everything locally in-browser using `@ffmpeg/ffmpeg`. No API calls, no cloud storage.
+- 🌌 **Immersive 3D UI**: A dynamic, glassmorphic spatial workspace built on `react-three-fiber` and Three.js.
+- 🧠 **Smart Scene Detection**: Automatically detects distinct scenes using perceptual hashing (pHash) and skips near-duplicate frames.
+- 📊 **Real-Time Quality Scoring**: Evaluates and filters extracted frames based on spatial blur variance and histogram contrast entropy.
+- 📦 **One-Click Dataset Export**: Zips extracted frames directly into `YOLO v8` and `COCO JSON` folder structures, ready for model training.
+
+---
+
+## 🏗 System Architecture
+
+The architecture relies heavily on modern browser APIs like `SharedArrayBuffer` for multi-threading and Web Workers to offload heavy rendering tasks from the main UI thread.
+
+```mermaid
+graph TD
+    A[User Video Input] -->|Drag & Drop| B(UI Thread - React/Zustand)
+    B --> C{FFmpeg WASM Engine}
+    C -->|Extracts Frames| D[In-Memory Uint8Array]
+    D --> E[Web Worker: Scene Analyzer]
+    E -->|pHash / Blur Score| F[Quality Filter]
+    F --> G[Frame Gallery 3D UI]
+    G --> H{Dataset Exporter - JSZip}
+    H -->|YOLO/COCO Format| I[ZIP Download]
+    
+    style C fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:white
+    style E fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:white
+    style H fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:white
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Critical Security Headers
+To enable the multi-threaded WASM execution, this application mandates strict Cross-Origin Isolation headers:
+* `Cross-Origin-Opener-Policy: same-origin`
+* `Cross-Origin-Embedder-Policy: require-corp`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🤖 Edge AI & Machine Learning
+
+Vedio Frame Cosmos incorporates intelligent edge heuristics to optimize your ML datasets before you even begin labeling:
+
+1. **Blur Detection**: Calculates the Laplacian variance of grayscale pixels to reject out-of-focus frames.
+2. **Perceptual Hashing**: Resizes and converts frames to discrete cosine transform (DCT) hashes to compute Hamming distances, intelligently determining scene boundaries.
+3. **TFJS Scaffolding**: Prepared for deep integration with `MobileNetV3` and `EfficientNet` via TensorFlow.js for in-browser visual diversity scoring.
+
+---
+
+## 🚀 Deployment & Local Development
+
+### Prerequisites
+- Node.js v18.x or higher
+- Git
+
+### Local Setup
+```bash
+# Clone the repository
+git clone https://github.com/abhranilsingharoy-cloud/Vedio-Frame-Cosmos.git
+
+# Navigate into the project directory
+cd Vedio-Frame-Cosmos
+
+# Install dependencies
+npm install
+
+# Start the Vite development server
+npm run dev
 ```
+
+### Deploying to Vercel
+This repository is pre-configured for instant Vercel deployment via the included `vercel.json` file (which applies the necessary COOP/COEP headers for FFmpeg WASM).
+1. Push your code to GitHub.
+2. Go to [Vercel](https://vercel.com/) and Import the repository.
+3. Click **Deploy**. Vercel handles the rest automatically.
+
+---
+
+## 📁 Dataset Export Formats
+
+Vedio Frame Cosmos allows you to instantly download a ZIP file structured perfectly for popular computer vision training pipelines:
+
+### YOLO v8 Architecture
+```text
+dataset.zip/
+├── dataset.yaml
+├── images/
+│   └── train/
+│       ├── frame_001.jpg
+│       └── frame_002.jpg
+└── labels/
+    └── train/
+        ├── frame_001.txt (blank annotation stub)
+        └── frame_002.txt
+```
+
+### CSV Metadata Example
+| frame_id | filename | timestamp_ms | width | height | blur_score | scene_id |
+|----------|----------|--------------|-------|--------|------------|----------|
+| 1 | frame_001.jpg | 0 | 1920 | 1080 | 0.85 | 1 |
+| 2 | frame_002.jpg | 500 | 1920 | 1080 | 0.82 | 1 |
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! To contribute:
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+<div align="center">
+  <i>Built with ❤️ for the Computer Vision Community.</i>
+</div>
