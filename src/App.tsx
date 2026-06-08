@@ -7,6 +7,7 @@ import { ProgressDisplay } from './components/ProgressDisplay';
 import { LightboxModal } from './components/LightboxModal';
 import { Clapperboard } from 'lucide-react';
 import { Canvas3DBackground } from './components/Canvas3DBackground';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function App() {
   const { video, frames } = useAppStore();
@@ -18,7 +19,12 @@ function App() {
       <LightboxModal />
 
       {/* Header */}
-      <header className="border-b border-white/10 bg-black/20 sticky top-0 z-40 backdrop-blur-xl shadow-lg">
+      <motion.header 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className="border-b border-white/10 bg-black/30 sticky top-0 z-40 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+      >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Clapperboard className="w-6 h-6 text-primary" />
@@ -34,20 +40,31 @@ function App() {
             </nav>
           )}
         </div>
-      </header>
+      </motion.header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8">
+      <main className="max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8 perspective-1000">
+        <AnimatePresence mode="wait">
         
         {/* Intro / Landing Page */}
-        {!video && <LandingPage />}
-
-        {/* Workspace */}
-        {video && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {!video ? (
+          <motion.div key="landing" exit={{ opacity: 0, y: -50, scale: 0.95 }} transition={{ duration: 0.4 }}>
+            <LandingPage />
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="workspace"
+            initial={{ opacity: 0, y: 50, scale: 0.95, rotateX: 10 }}
+            animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8 transform-style-3d"
+          >
             
             {/* Left Column: Video & Settings */}
             <div className="lg:col-span-1 flex flex-col gap-6">
-              <div className="bg-black/30 backdrop-blur-lg border border-white/10 shadow-2xl rounded-2xl p-4">
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                className="bg-gradient-to-b from-white/5 to-white/0 backdrop-blur-2xl border-t border-l border-white/20 border-r border-b border-black/50 shadow-[0_20px_50px_rgba(0,0,0,0.7)] rounded-3xl p-5"
+              >
                 <VideoPlayer />
                 <div className="mt-4 flex justify-between items-center px-2">
                   <span className="font-medium truncate" title={video.name}>{video.name}</span>
@@ -55,7 +72,7 @@ function App() {
                     {Math.round(video.duration)}s
                   </span>
                 </div>
-              </div>
+              </motion.div>
               
               <ExtractionConfigPanel />
               
@@ -70,22 +87,33 @@ function App() {
             </div>
 
             {/* Right Column: Gallery */}
-            <div className="lg:col-span-2">
+            <motion.div 
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.4, type: "spring" }}
+              className="lg:col-span-2"
+            >
               {frames.length > 0 ? (
                 <FrameGallery />
               ) : (
-                <div className="h-full min-h-[400px] border-2 border-dashed border-white/20 bg-black/20 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center text-muted-foreground p-8 text-center shadow-xl">
-                  <Clapperboard className="w-12 h-12 mb-4 opacity-20" />
-                  <p className="text-lg font-medium">Ready to extract</p>
+                <div className="h-full min-h-[400px] border-t border-l border-white/10 border-r border-b border-black/40 bg-black/20 backdrop-blur-xl rounded-3xl flex flex-col items-center justify-center text-muted-foreground p-8 text-center shadow-[inset_0_2px_20px_rgba(0,0,0,0.5),0_20px_50px_rgba(0,0,0,0.4)]">
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Clapperboard className="w-16 h-16 mb-6 opacity-20" />
+                  </motion.div>
+                  <p className="text-xl font-bold text-white/70">Ready to extract</p>
                   <p className="text-sm mt-2 max-w-sm">
                     Configure your extraction settings on the left and click "Start Extraction" to generate frames.
                   </p>
                 </div>
               )}
-            </div>
+            </motion.div>
 
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </main>
 
       {/* Credit Footer */}

@@ -2,6 +2,15 @@ import { useAppStore } from '../store/appStore';
 import { FrameCard } from './FrameCard';
 import { useDownload } from '../hooks/useDownload';
 import { Download, Trash2, CheckSquare } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
 
 export const FrameGallery = () => {
   const { frames, selectedFrames, selectAllFrames, clearSelection, deleteSelectedFrames } = useAppStore();
@@ -62,11 +71,16 @@ export const FrameGallery = () => {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 perspective-1000"
+      >
         {frames.map((frame, idx) => (
           <FrameCard key={frame.id} frame={frame} index={idx} />
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -2,6 +2,12 @@ import { memo } from 'react';
 import type { Frame } from '../types';
 import { useAppStore } from '../store/appStore';
 import { CheckCircle2, Maximize2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.9 },
+  visible: { opacity: 1, y: 0, scale: 1 }
+};
 
 export const FrameCard = memo(({ frame, index }: { frame: Frame, index: number }) => {
   const { selectedFrames, toggleFrameSelection, setLightboxIndex } = useAppStore();
@@ -22,9 +28,13 @@ export const FrameCard = memo(({ frame, index }: { frame: Frame, index: number }
   }
 
   return (
-    <div 
-      className={`group relative rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-        isSelected ? 'border-primary' : 'border-transparent hover:border-muted'
+    <motion.div 
+      variants={itemVariants}
+      whileHover={{ scale: 1.05, rotateY: 5, rotateX: 5, z: 20 }}
+      whileTap={{ scale: 0.95 }}
+      layout
+      className={`group relative rounded-xl overflow-hidden border-2 transition-colors cursor-pointer shadow-lg transform-style-3d ${
+        isSelected ? 'border-primary shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'border-transparent hover:border-white/20'
       }`}
       onClick={() => toggleFrameSelection(frame.id)}
     >
@@ -66,6 +76,6 @@ export const FrameCard = memo(({ frame, index }: { frame: Frame, index: number }
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 });
