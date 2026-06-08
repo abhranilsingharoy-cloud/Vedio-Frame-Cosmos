@@ -62,7 +62,7 @@ function App() {
               <div className="mt-auto pt-8">
                 <button 
                   onClick={() => useAppStore.getState().reset()}
-                  className="w-full py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                  className="w-full py-3 mt-4 text-sm font-semibold text-destructive-foreground bg-destructive/80 hover:bg-destructive rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)] border border-destructive/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Start Over
                 </button>
