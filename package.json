@@ -12,8 +12,11 @@
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "@tensorflow-models/mobilenet": "^2.1.1",
     "@tensorflow/tfjs": "^4.22.0",
+    "@types/three": "^0.184.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.40.0",
     "jszip": "^3.10.1",
@@ -22,6 +25,7 @@
     "react-dom": "^19.2.6",
     "react-dropzone": "^15.0.0",
     "tailwind-merge": "^3.6.0",
+    "three": "^0.184.0",
     "zustand": "^5.0.14"
   },
   "devDependencies": {

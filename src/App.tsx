@@ -1,40 +1,45 @@
 import { useAppStore } from './store/appStore';
-import { UploadDropzone } from './components/UploadDropzone';
+import { LandingPage } from './components/LandingPage';
 import { VideoPlayer } from './components/VideoPlayer';
 import { ExtractionConfigPanel } from './components/ExtractionConfig';
 import { FrameGallery } from './components/FrameGallery';
 import { ProgressDisplay } from './components/ProgressDisplay';
 import { LightboxModal } from './components/LightboxModal';
 import { Clapperboard } from 'lucide-react';
+import { Canvas3DBackground } from './components/Canvas3DBackground';
 
 function App() {
   const { video, frames } = useAppStore();
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
+    <div className="min-h-screen text-foreground pb-20 relative">
+      <Canvas3DBackground />
       <ProgressDisplay />
       <LightboxModal />
 
       {/* Header */}
-      <header className="border-b border-border bg-card/50 sticky top-0 z-40 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-3">
-          <Clapperboard className="w-6 h-6 text-primary" />
-          <h1 className="text-xl font-bold tracking-tight">VideoFrame<span className="text-primary">X</span></h1>
+      <header className="border-b border-white/10 bg-black/20 sticky top-0 z-40 backdrop-blur-xl shadow-lg">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Clapperboard className="w-6 h-6 text-primary" />
+            <h1 className="text-xl font-bold tracking-tight">Vedio Frame <span className="text-primary">Cosmos</span></h1>
+          </div>
+          
+          {!video && (
+            <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+              <a href="#home" className="hover:text-foreground transition-colors">Home</a>
+              <a href="#how-it-works" className="hover:text-foreground transition-colors">How it Works</a>
+              <a href="#features" className="hover:text-foreground transition-colors">Features</a>
+              <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
+            </nav>
+          )}
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8">
         
-        {/* Intro */}
-        {!video && (
-          <div className="text-center py-20 max-w-2xl mx-auto">
-            <h2 className="text-4xl font-extrabold tracking-tight mb-4">Extract frames with precision</h2>
-            <p className="text-xl text-muted-foreground mb-12">
-              100% browser-based video frame extraction and dataset generation. No uploads, zero cost, total privacy.
-            </p>
-            <UploadDropzone />
-          </div>
-        )}
+        {/* Intro / Landing Page */}
+        {!video && <LandingPage />}
 
         {/* Workspace */}
         {video && (
@@ -42,7 +47,7 @@ function App() {
             
             {/* Left Column: Video & Settings */}
             <div className="lg:col-span-1 flex flex-col gap-6">
-              <div className="bg-card border border-border rounded-xl p-4">
+              <div className="bg-black/30 backdrop-blur-lg border border-white/10 shadow-2xl rounded-2xl p-4">
                 <VideoPlayer />
                 <div className="mt-4 flex justify-between items-center px-2">
                   <span className="font-medium truncate" title={video.name}>{video.name}</span>
@@ -69,7 +74,7 @@ function App() {
               {frames.length > 0 ? (
                 <FrameGallery />
               ) : (
-                <div className="h-full min-h-[400px] border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center text-muted-foreground p-8 text-center">
+                <div className="h-full min-h-[400px] border-2 border-dashed border-white/20 bg-black/20 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center text-muted-foreground p-8 text-center shadow-xl">
                   <Clapperboard className="w-12 h-12 mb-4 opacity-20" />
                   <p className="text-lg font-medium">Ready to extract</p>
                   <p className="text-sm mt-2 max-w-sm">
