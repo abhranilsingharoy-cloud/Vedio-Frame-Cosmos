@@ -1,4 +1,4 @@
-import { useAppStore } frm './store/appStore';
+import { useAppStore } from './store/appStore';
 import { LandingPage } from './components/LandingPage';
 import { VideoPlayer } from './components/VideoPlayer';
 import { ExtractionConfigPanel } from './components/ExtractionConfig';
