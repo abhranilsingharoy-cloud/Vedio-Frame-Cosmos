@@ -82,7 +82,7 @@ export const extractFrames = async (
     ];
 
     try {
-      const { exitCode } = await f.exec(args);
+      const exitCode = await f.exec(args);
       if (exitCode !== 0) {
         throw new Error(`Exit code ${exitCode}. Last log: ${(f as any).getLastLog()}`);
       }
