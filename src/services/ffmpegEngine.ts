@@ -19,7 +19,7 @@ export const initFFmpeg = async (onProgress?: (progress: number) => void): Promi
     console.log('[FFmpeg Log]', message);
   });
 
-  const baseURL = 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
+  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
   
   try {
     await ffmpeg.load({
@@ -28,7 +28,7 @@ export const initFFmpeg = async (onProgress?: (progress: number) => void): Promi
     });
   } catch (err) {
     console.error('Failed to load FFmpeg core', err);
-    throw new Error('Could not load FFmpeg WASM. Your browser may not support it or network failed.');
+    throw new Error('Could not load FFmpeg WASM. Network blocked or device unsupported.');
   }
 
   return ffmpeg;
@@ -53,69 +53,54 @@ export const extractFrames = async (
   let startSec = video.duration * (startTime / 100);
   if (isNaN(startSec) || startSec < 0) startSec = 0;
 
-  let fps = Math.max(0.1, frameCount / duration);
-  if (isNaN(fps) || !isFinite(fps)) fps = 1;
-  
   // FFmpeg quality: 1 is highest, 31 is lowest
-  // Our quality slider: 100 is highest, 1 is lowest
   const qScale = Math.floor(31 - ((quality - 1) / 99) * 30);
   
-  // Build FFmpeg command
-  const args = [
-    '-threads', '0',
-    '-ss', startSec.toString(),
-    '-t', duration.toString(),
-    '-i', inputName,
-    '-vf', `fps=${fps.toFixed(3)}`,
-    '-frames:v', frameCount.toString(),
-    '-q:v', qScale.toString(),
-    '-pix_fmt', 'yuvj420p',
-    'frame_%03d.jpg'
-  ];
-
-  onProgress(0.1, 'Extracting frames...');
+  onProgress(0.1, 'Extracting frames via fast-seek...');
   
-  let _frameProgress = 0.1;
-  f.on('progress', ({ progress }) => {
-    // scale 0-1 to 0.1-0.9
-    _frameProgress = 0.1 + (progress * 0.8);
-    onProgress(_frameProgress, 'Extracting frames...');
-  });
-
-  await f.exec(args);
-  
-  f.off('progress', () => {}); // cleanup listener
-
-  onProgress(0.9, 'Processing extracted frames...');
-
   const extractedFrames: Frame[] = [];
-  
+  const interval = duration / frameCount;
+
   for (let i = 1; i <= frameCount; i++) {
+    const timestamp = startSec + (i - 1) * interval;
     const fileName = `frame_${i.toString().padStart(3, '0')}.jpg`;
+    
+    // Fast seek: -ss before -i means it jumps to the nearest keyframe without decoding
+    const args = [
+      '-ss', timestamp.toString(),
+      '-i', inputName,
+      '-frames:v', '1',
+      '-q:v', qScale.toString(),
+      '-pix_fmt', 'yuvj420p',
+      fileName
+    ];
+
     try {
+      await f.exec(args);
+      
       const data = await f.readFile(fileName);
       const blob = new Blob([data as unknown as BlobPart], { type: 'image/jpeg' });
       const url = URL.createObjectURL(blob);
       
-      const frameTimestamp = startSec * 1000 + ((i - 1) / fps) * 1000;
-      
-      // We will parse actual width/height in a post-process step using an Image object
       extractedFrames.push({
         id: `frame_${Date.now()}_${i}`,
         blob,
         url,
         number: i,
-        timestamp: frameTimestamp,
+        timestamp: timestamp * 1000,
         width: video.width, // fallback
         height: video.height, // fallback
         size: blob.size,
       });
       
-      // Cleanup file from MEMFS
       await f.deleteFile(fileName);
     } catch (e) {
-      console.warn(`Could not read ${fileName}`, e);
+      console.warn(`Could not extract frame at ${timestamp}s`, e);
     }
+
+    // Update progress exactly
+    const currentProgress = 0.1 + ((i / frameCount) * 0.8);
+    onProgress(currentProgress, `Extracted frame ${i}/${frameCount}`);
   }
 
   await f.deleteFile(inputName);
