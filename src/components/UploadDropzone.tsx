@@ -14,6 +14,7 @@ export const UploadDropzone = () => {
     // Create an object URL to load the video metadata
     const url = URL.createObjectURL(file);
     const videoElement = document.createElement('video');
+    videoElement.preload = 'metadata';
     videoElement.src = url;
     videoElement.onloadedmetadata = () => {
       setVideo({
@@ -26,6 +27,7 @@ export const UploadDropzone = () => {
         fps: 30, // Approximate, FFmpeg will recalculate
       });
     };
+    videoElement.load();
   }, [setVideo]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

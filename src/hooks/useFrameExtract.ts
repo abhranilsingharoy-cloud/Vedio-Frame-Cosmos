@@ -36,12 +36,13 @@ export const useFrameExtract = () => {
 
       setFrames(extracted);
       setProgress(1, 'Complete!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Extraction failed:', error);
-      setProgress(0, 'Extraction failed. See console.');
+      const msg = error?.message || String(error);
+      setProgress(0, `Failed: ${msg.substring(0, 50)}`);
     } finally {
       setIsExtracting(false);
-      setTimeout(() => setProgress(0, ''), 3000);
+      setTimeout(() => setProgress(0, ''), 6000);
     }
   };
 
