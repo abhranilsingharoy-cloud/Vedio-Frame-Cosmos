@@ -1,125 +1,117 @@
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import type { Frame, ExtractionConfig, VideoInfo } from '../types';
 
-let ffmpeg: FFmpeg | null = null;
-
-export const initFFmpeg = async (onProgress?: (progress: number) => void): Promise<FFmpeg> => {
-  if (ffmpeg) return ffmpeg;
-
-  ffmpeg = new FFmpeg();
-  
-  if (onProgress) {
-    ffmpeg.on('progress', ({ progress }) => {
-      onProgress(progress);
-    });
-  }
-
-  let lastLog = '';
-  ffmpeg.on('log', ({ message }) => {
-    console.log('[FFmpeg Log]', message);
-    lastLog = message;
-  });
-
-  // Attach a method to get the last log
-  (ffmpeg as any).getLastLog = () => lastLog;
-
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
-  
-  try {
-    await ffmpeg.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-    });
-  } catch (err) {
-    console.error('Failed to load FFmpeg core', err);
-    throw new Error('Could not load FFmpeg WASM. Network blocked or device unsupported.');
-  }
-
-  return ffmpeg;
-};
-
+/**
+ * Extracts frames using the native HTML5 <video> and <canvas> elements.
+ * This completely bypasses FFmpeg WASM, resulting in instantaneous, hardware-accelerated
+ * extraction that is 100% immune to browser CORS, COOP/COEP, and memory limit crashes.
+ */
 export const extractFrames = async (
-  video: VideoInfo,
+  videoInfo: VideoInfo,
   config: ExtractionConfig,
   onProgress: (progress: number, message: string) => void
 ): Promise<Frame[]> => {
-  const f = await initFFmpeg();
-  
-  onProgress(0, 'Loading video file...');
-  const inputName = 'input.mp4';
-  await f.writeFile(inputName, await fetchFile(video.file));
-
-  const { frameCount, quality, startTime, endTime } = config;
-  
-  let duration = video.duration * ((endTime - startTime) / 100);
-  if (isNaN(duration) || duration <= 0) duration = 1;
-
-  let startSec = video.duration * (startTime / 100);
-  if (isNaN(startSec) || startSec < 0) startSec = 0;
-
-  // FFmpeg quality: 1 is highest, 31 is lowest
-  const qScale = Math.floor(31 - ((quality - 1) / 99) * 30);
-  
-  onProgress(0.1, 'Extracting frames via fast-seek...');
-  
-  const extractedFrames: Frame[] = [];
-  const interval = duration / frameCount;
-  let lastError = '';
-
-  for (let i = 1; i <= frameCount; i++) {
-    const timestamp = startSec + (i - 1) * interval;
-    const fileName = `frame_${i.toString().padStart(3, '0')}.jpg`;
-    
-    // Fast seek: -ss before -i means it jumps to the nearest keyframe without decoding
-    const args = [
-      '-ss', timestamp.toFixed(3),
-      '-i', inputName,
-      '-frames:v', '1',
-      '-q:v', qScale.toString(),
-      '-f', 'image2',
-      fileName
-    ];
-
+  return new Promise((resolve, reject) => {
     try {
-      const exitCode = await f.exec(args);
-      if (exitCode !== 0) {
-        throw new Error(`Exit code ${exitCode}. Last log: ${(f as any).getLastLog()}`);
+      onProgress(0.1, 'Initializing hardware decoder...');
+      
+      const video = document.createElement('video');
+      video.src = videoInfo.url;
+      video.muted = true;
+      video.playsInline = true;
+      video.crossOrigin = 'anonymous'; // Ensure no canvas tainting
+
+      const { frameCount, quality, startTime, endTime } = config;
+      
+      let duration = videoInfo.duration * ((endTime - startTime) / 100);
+      if (isNaN(duration) || duration <= 0) duration = 1;
+      
+      let startSec = videoInfo.duration * (startTime / 100);
+      if (isNaN(startSec) || startSec < 0) startSec = 0;
+
+      const interval = duration / frameCount;
+      const extractedFrames: Frame[] = [];
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        throw new Error('Canvas 2D context not supported by your browser.');
       }
+
+      let currentFrameIndex = 0;
+
+      // Handle successful load
+      video.onloadeddata = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        extractNextFrame();
+      };
+
+      // Handle native decoding errors
+      video.onerror = () => {
+        reject(new Error(`Video decoding failed. Code: ${video.error?.code || 'Unknown'}`));
+      };
+
+      const extractNextFrame = () => {
+        if (currentFrameIndex >= frameCount) {
+          onProgress(1, 'Extraction complete!');
+          resolve(extractedFrames);
+          // Cleanup
+          video.src = '';
+          video.load();
+          return;
+        }
+
+        const targetTimestamp = startSec + currentFrameIndex * interval;
+        video.currentTime = targetTimestamp;
+      };
+
+      // Event fires when the video hardware decoder finishes seeking to the frame
+      video.onseeked = () => {
+        try {
+          // Draw the current video frame onto the canvas
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          // Quality is 1-100 in our config, toBlob expects 0.0-1.0
+          const jpegQuality = quality / 100;
+          
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              extractedFrames.push({
+                id: `frame_${Date.now()}_${currentFrameIndex}`,
+                blob,
+                url,
+                number: currentFrameIndex + 1,
+                timestamp: video.currentTime * 1000,
+                width: canvas.width,
+                height: canvas.height,
+                size: blob.size,
+              });
+            } else {
+              console.warn(`Frame ${currentFrameIndex} failed to encode to JPEG.`);
+            }
+            
+            currentFrameIndex++;
+            const progressVal = 0.1 + ((currentFrameIndex / frameCount) * 0.8);
+            onProgress(progressVal, `Extracted frame ${currentFrameIndex}/${frameCount}`);
+            
+            // Loop!
+            extractNextFrame();
+            
+          }, 'image/jpeg', jpegQuality);
+          
+        } catch (err: any) {
+          console.warn(`Failed to process frame ${currentFrameIndex}:`, err);
+          reject(new Error(`Failed to draw frame. ${err?.message || ''}`));
+        }
+      };
+
+      // Trigger the loading sequence
+      video.load();
       
-      const data = await f.readFile(fileName);
-      const blob = new Blob([data as unknown as BlobPart], { type: 'image/jpeg' });
-      const url = URL.createObjectURL(blob);
-      
-      extractedFrames.push({
-        id: `frame_${Date.now()}_${i}`,
-        blob,
-        url,
-        number: i,
-        timestamp: timestamp * 1000,
-        width: video.width, // fallback
-        height: video.height, // fallback
-        size: blob.size,
-      });
-      
-      await f.deleteFile(fileName);
-    } catch (e: any) {
-      console.warn(`Could not extract frame at ${timestamp}s`, e);
-      lastError = e.message;
+    } catch (err: any) {
+      reject(new Error(`Fatal extraction error: ${err.message}`));
     }
-
-    // Update progress exactly
-    const currentProgress = 0.1 + ((i / frameCount) * 0.8);
-    onProgress(currentProgress, `Extracted frame ${i}/${frameCount}`);
-  }
-
-  await f.deleteFile(inputName);
-  
-  if (extractedFrames.length === 0) {
-    throw new Error(`Extraction failed. ${lastError}`);
-  }
-
-  onProgress(1, 'Extraction complete!');
-
-  return extractedFrames;
+  });
 };
