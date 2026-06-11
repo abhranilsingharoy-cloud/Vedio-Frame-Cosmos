@@ -15,9 +15,14 @@ export const initFFmpeg = async (onProgress?: (progress: number) => void): Promi
     });
   }
 
+  let lastLog = '';
   ffmpeg.on('log', ({ message }) => {
     console.log('[FFmpeg Log]', message);
+    lastLog = message;
   });
+
+  // Attach a method to get the last log
+  (ffmpeg as any).getLastLog = () => lastLog;
 
   const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
   
@@ -60,6 +65,7 @@ export const extractFrames = async (
   
   const extractedFrames: Frame[] = [];
   const interval = duration / frameCount;
+  let lastError = '';
 
   for (let i = 1; i <= frameCount; i++) {
     const timestamp = startSec + (i - 1) * interval;
@@ -67,16 +73,19 @@ export const extractFrames = async (
     
     // Fast seek: -ss before -i means it jumps to the nearest keyframe without decoding
     const args = [
-      '-ss', timestamp.toString(),
+      '-ss', timestamp.toFixed(3),
       '-i', inputName,
       '-frames:v', '1',
       '-q:v', qScale.toString(),
-      '-pix_fmt', 'yuvj420p',
+      '-f', 'image2',
       fileName
     ];
 
     try {
-      await f.exec(args);
+      const { exitCode } = await f.exec(args);
+      if (exitCode !== 0) {
+        throw new Error(`Exit code ${exitCode}. Last log: ${(f as any).getLastLog()}`);
+      }
       
       const data = await f.readFile(fileName);
       const blob = new Blob([data as unknown as BlobPart], { type: 'image/jpeg' });
@@ -94,8 +103,9 @@ export const extractFrames = async (
       });
       
       await f.deleteFile(fileName);
-    } catch (e) {
+    } catch (e: any) {
       console.warn(`Could not extract frame at ${timestamp}s`, e);
+      lastError = e.message;
     }
 
     // Update progress exactly
@@ -104,6 +114,11 @@ export const extractFrames = async (
   }
 
   await f.deleteFile(inputName);
+  
+  if (extractedFrames.length === 0) {
+    throw new Error(`Extraction failed. ${lastError}`);
+  }
+
   onProgress(1, 'Extraction complete!');
 
   return extractedFrames;
