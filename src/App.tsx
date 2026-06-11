@@ -25,8 +25,8 @@ function App() {
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
         className="border-b border-white/10 bg-black/30 sticky top-0 z-40 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-3">
             <Clapperboard className="w-6 h-6 text-primary" />
             <h1 className="text-xl font-bold tracking-tight">Vedio Frame <span className="text-primary">Cosmos</span></h1>
           </div>
@@ -42,7 +42,7 @@ function App() {
         </div>
       </motion.header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8 perspective-1000">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 flex flex-col gap-6 md:gap-8 perspective-1000">
         <AnimatePresence mode="wait">
         
         {/* Intro / Landing Page */}
@@ -117,7 +117,7 @@ function App() {
       </main>
 
       {/* Credit Footer */}
-      <div className="fixed bottom-4 right-6 z-50 text-xs font-medium text-muted-foreground/50 hover:text-muted-foreground transition-colors pointer-events-none">
+      <div className="hidden md:block fixed bottom-4 right-6 z-50 text-xs font-medium text-muted-foreground/50 hover:text-muted-foreground transition-colors pointer-events-none">
         Designed and Developed by Abhranil Singha Roy.
       </div>
     </div>

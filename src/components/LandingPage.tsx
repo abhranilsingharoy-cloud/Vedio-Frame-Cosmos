@@ -21,10 +21,10 @@ export const LandingPage = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="flex flex-col gap-32 pb-32 overflow-hidden perspective-1000"
+      className="flex flex-col gap-20 md:gap-32 pb-20 md:pb-32 overflow-hidden perspective-1000"
     >
       {/* Hero Section */}
-      <motion.section variants={itemVariants} id="home" className="text-center pt-20 max-w-4xl mx-auto transform-style-3d">
+      <motion.section variants={itemVariants} id="home" className="text-center pt-10 md:pt-20 max-w-4xl mx-auto transform-style-3d">
         <motion.div 
           animate={{ y: [0, -5, 0] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -33,7 +33,7 @@ export const LandingPage = () => {
           <Zap className="w-4 h-4" />
           <span className="text-sm font-medium">100% In-Browser Processing</span>
         </motion.div>
-        <h2 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 text-shadow-xl">
+        <h2 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6 text-shadow-xl">
           Extract frames with <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">precision</span>
         </h2>
         <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
@@ -62,7 +62,7 @@ export const LandingPage = () => {
               key={i} 
               whileHover={{ scale: 1.05, rotateY: 5, rotateX: -5 }}
               transition={{ type: "spring", stiffness: 300 }}
-              className="relative p-8 rounded-3xl bg-black/40 border border-white/10 backdrop-blur-xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_50px_-10px_rgba(99,102,241,0.3)] transition-shadow"
+              className="relative p-6 md:p-8 rounded-3xl bg-black/40 border border-white/10 backdrop-blur-xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_50px_-10px_rgba(99,102,241,0.3)] transition-shadow"
               style={{ transformStyle: 'preserve-3d' }}
             >
               <div className="text-7xl font-black text-white/5 absolute top-2 right-4 translate-z-10">{item.step}</div>
@@ -117,7 +117,7 @@ export const LandingPage = () => {
         <motion.div 
           animate={{ y: [0, -15, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="p-10 rounded-3xl bg-gradient-to-br from-primary/20 via-black/40 to-black/60 border border-primary/30 backdrop-blur-xl relative overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8),0_0_40px_rgba(99,102,241,0.2)]"
+          className="p-6 md:p-10 rounded-3xl bg-gradient-to-br from-primary/20 via-black/40 to-black/60 border border-primary/30 backdrop-blur-xl relative overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8),0_0_40px_rgba(99,102,241,0.2)]"
         >
           <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
             <Zap className="w-48 h-48" />

@@ -41,7 +41,7 @@ export const UploadDropzone = () => {
       whileHover={{ scale: 1.02, y: -5 }}
       whileTap={{ scale: 0.98, y: 0 }}
       {...(getRootProps() as any)} 
-      className={`border-t border-l border-white/20 border-r border-black/50 border-b-8 rounded-3xl p-16 text-center cursor-pointer transition-all duration-300 transform-style-3d shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-md relative overflow-hidden
+      className={`border-t border-l border-white/20 border-r border-black/50 border-b-8 rounded-3xl p-8 md:p-16 text-center cursor-pointer transition-all duration-300 transform-style-3d shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-md relative overflow-hidden
         ${isDragActive ? 'border-b-primary/80 bg-primary/20 shadow-[0_20px_50px_rgba(99,102,241,0.4)]' : 'border-b-black/80 bg-black/40 hover:border-b-primary/50'}
       `}
     >

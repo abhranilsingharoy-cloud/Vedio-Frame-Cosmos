@@ -43,7 +43,7 @@ export const FrameGallery = () => {
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {selectedFrames.size > 0 && (
             <button 
               onClick={deleteSelectedFrames}
@@ -75,7 +75,7 @@ export const FrameGallery = () => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 perspective-1000"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 perspective-1000"
       >
         {frames.map((frame, idx) => (
           <FrameCard key={frame.id} frame={frame} index={idx} />
