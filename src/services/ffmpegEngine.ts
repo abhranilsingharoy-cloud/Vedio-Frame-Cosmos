@@ -15,6 +15,9 @@ export const extractFrames = async (
       onProgress(0.1, 'Initializing hardware decoder...');
       
       const video = document.createElement('video');
+      video.style.display = 'none';
+      document.body.appendChild(video);
+      
       video.src = videoInfo.url;
       video.muted = true;
       video.playsInline = true;
@@ -59,6 +62,9 @@ export const extractFrames = async (
           // Cleanup
           video.src = '';
           video.load();
+          if (video.parentNode) {
+            document.body.removeChild(video);
+          }
           return;
         }
 
@@ -111,6 +117,10 @@ export const extractFrames = async (
       video.load();
       
     } catch (err: any) {
+      // Ensure we clean up the DOM if a fatal error occurs early
+      const v = document.querySelector('video[style*="display: none"]');
+      if (v && v.parentNode) document.body.removeChild(v);
+      
       reject(new Error(`Fatal extraction error: ${err.message}`));
     }
   });

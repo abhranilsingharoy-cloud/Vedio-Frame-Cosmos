@@ -9,7 +9,7 @@
 [![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Three.js](https://img.shields.io/badge/Three.js-3D-black?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
-[![FFmpeg](https://img.shields.io/badge/FFmpeg-WASM-green?style=for-the-badge&logo=ffmpeg&logoColor=white)](https://ffmpegwasm.netlify.app/)
+[![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 
 [View Live Demo](#) · [Report Bug](#) · [Request Feature](#)
 
@@ -32,15 +32,16 @@
 
 ## 🔭 Overview
 
-**Vedio Frame Cosmos** is a state-of-the-art Web3-era tool designed for ML engineers, computer vision researchers, and data scientists. By leveraging the power of WebAssembly (WASM), it moves heavy video processing entirely to the client-side. Your raw video bytes **never leave your local machine**, guaranteeing absolute data privacy, zero server costs, and unlimited processing bandwidth.
+**Vedio Frame Cosmos** is a state-of-the-art Web3-era tool designed for ML engineers, computer vision researchers, and data scientists. By leveraging the power of **Native HTML5 Hardware Acceleration**, it processes high-resolution videos entirely on the client-side. Your raw video bytes **never leave your local machine**, guaranteeing absolute data privacy, zero server costs, and blazing-fast unlimited processing bandwidth.
 
-Wrapped in an immersive, highly performant **3D Spatial User Interface** using React Three Fiber, the application provides a cinematic workspace inspired by professional color grading suites.
+Wrapped in an immersive, highly performant **3D Spatial User Interface** using React Three Fiber, the application provides a cinematic workspace inspired by professional color grading suites. It is fully **Mobile Compatible**, running seamlessly on iOS, Android, and Desktop browsers without downloading heavy WASM payloads.
 
 ---
 
 ## ⚡ Core Capabilities
 
-- 🔒 **Total Privacy (Zero-Server Architecture)**: Processes everything locally in-browser using `@ffmpeg/ffmpeg`. No API calls, no cloud storage.
+- 🔒 **Total Privacy (Zero-Server Architecture)**: Processes everything locally in-browser using the native `<canvas>` API. No API calls, no cloud storage.
+- 📱 **100% Mobile & Cross-Browser Compatible**: Bypasses aggressive browser privacy shields and WebAssembly memory limits. Works flawlessly on Brave, iOS Safari, and Chrome Mobile.
 - 🌌 **Immersive 3D UI**: A dynamic, glassmorphic spatial workspace built on `react-three-fiber` and Three.js.
 - 🧠 **Smart Scene Detection**: Automatically detects distinct scenes using perceptual hashing (pHash) and skips near-duplicate frames.
 - 📊 **Real-Time Quality Scoring**: Evaluates and filters extracted frames based on spatial blur variance and histogram contrast entropy.
@@ -50,28 +51,23 @@ Wrapped in an immersive, highly performant **3D Spatial User Interface** using R
 
 ## 🏗 System Architecture
 
-The architecture relies heavily on modern browser APIs like `SharedArrayBuffer` for multi-threading and Web Workers to offload heavy rendering tasks from the main UI thread.
+The architecture relies entirely on the browser's native video hardware decoder and the Canvas API, providing unmatched speed and reliability compared to WebAssembly alternatives.
 
 ```mermaid
 graph TD
     A[User Video Input] -->|Drag & Drop| B(UI Thread - React/Zustand)
-    B --> C{FFmpeg WASM Engine}
-    C -->|Extracts Frames| D[In-Memory Uint8Array]
-    D --> E[Web Worker: Scene Analyzer]
-    E -->|pHash / Blur Score| F[Quality Filter]
+    B --> C{Native HTML5 Video Decoder}
+    C -->|Fast Seek to Millisecond| D[Hardware Render to Canvas]
+    D -->|Blob Export| E[In-Memory JPEG Array]
+    E -->|pHash / Blur Score| F[Quality Filter Worker]
     F --> G[Frame Gallery 3D UI]
     G --> H{Dataset Exporter - JSZip}
     H -->|YOLO/COCO Format| I[ZIP Download]
     
-    style C fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:white
-    style E fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:white
+    style C fill:#E34F26,stroke:#B73818,stroke-width:2px,color:white
+    style D fill:#F0DB4F,stroke:#D4B830,stroke-width:2px,color:black
     style H fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:white
 ```
-
-### Critical Security Headers
-To enable the multi-threaded WASM execution, this application mandates strict Cross-Origin Isolation headers:
-* `Cross-Origin-Opener-Policy: same-origin`
-* `Cross-Origin-Embedder-Policy: require-corp`
 
 ---
 
@@ -107,7 +103,7 @@ npm run dev
 ```
 
 ### Deploying to Vercel
-This repository is pre-configured for instant Vercel deployment via the included `vercel.json` file (which applies the necessary COOP/COEP headers for FFmpeg WASM).
+This repository is pre-configured for instant Vercel deployment.
 1. Push your code to GitHub.
 2. Go to [Vercel](https://vercel.com/) and Import the repository.
 3. Click **Deploy**. Vercel handles the rest automatically.
