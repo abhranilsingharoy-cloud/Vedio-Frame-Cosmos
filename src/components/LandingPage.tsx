@@ -87,7 +87,7 @@ export const LandingPage = () => {
             { icon: <Settings className="w-6 h-6 text-primary" />, title: 'Smart Scene Detection', desc: 'Perceptual hashing skips near-duplicate frames automatically.' },
             { icon: <Shield className="w-6 h-6 text-primary" />, title: 'Total Privacy', desc: 'Zero backend API calls. The video bytes never leave your local machine.' },
             { icon: <FileOutput className="w-6 h-6 text-primary" />, title: 'Metadata Export', desc: 'Detailed CSV exports with blur scores, brightness, and timestamps.' },
-            { icon: <Zap className="w-6 h-6 text-primary" />, title: 'FFmpeg WASM', desc: 'Powered by WebAssembly for near-native extraction performance.' },
+            { icon: <Zap className="w-6 h-6 text-primary" />, title: 'Native Hardware Engine', desc: 'Powered by HTML5 Canvas for instant, hardware-accelerated extraction without WASM limits.' },
             { icon: <CheckCircle2 className="w-6 h-6 text-primary" />, title: 'Quality Control', desc: 'Built-in real-time frame quality scoring to remove blurry images.' }
           ].map((feature, i) => (
             <motion.div 
