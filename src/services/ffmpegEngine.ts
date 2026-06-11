@@ -15,7 +15,11 @@ export const initFFmpeg = async (onProgress?: (progress: number) => void): Promi
     });
   }
 
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+  ffmpeg.on('log', ({ message }) => {
+    console.log('[FFmpeg Log]', message);
+  });
+
+  const baseURL = 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
   
   try {
     await ffmpeg.load({
@@ -43,10 +47,14 @@ export const extractFrames = async (
 
   const { frameCount, quality, startTime, endTime } = config;
   
-  // Calculate fps based on requested frameCount and video duration within the time range
-  const duration = video.duration * ((endTime - startTime) / 100);
-  const startSec = video.duration * (startTime / 100);
-  const fps = Math.max(0.1, frameCount / duration);
+  let duration = video.duration * ((endTime - startTime) / 100);
+  if (isNaN(duration) || duration <= 0) duration = 1;
+
+  let startSec = video.duration * (startTime / 100);
+  if (isNaN(startSec) || startSec < 0) startSec = 0;
+
+  let fps = Math.max(0.1, frameCount / duration);
+  if (isNaN(fps) || !isFinite(fps)) fps = 1;
   
   // FFmpeg quality: 1 is highest, 31 is lowest
   // Our quality slider: 100 is highest, 1 is lowest
@@ -54,12 +62,14 @@ export const extractFrames = async (
   
   // Build FFmpeg command
   const args = [
+    '-threads', '0',
     '-ss', startSec.toString(),
     '-t', duration.toString(),
     '-i', inputName,
     '-vf', `fps=${fps.toFixed(3)}`,
     '-frames:v', frameCount.toString(),
     '-q:v', qScale.toString(),
+    '-pix_fmt', 'yuvj420p',
     'frame_%03d.jpg'
   ];
 
